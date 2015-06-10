@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuracion>
+    <reportes>
+        <reporte>
+            <nombre>Reporte de avances de entrega padrones ampliados</nombre>
+            <db>
+                <servidor>10.55.210.5:1433</servidor>
+                <nombre>SLFCA</nombre>
+                <usuario>dmartinez</usuario>
+                <password>dmartinez</password>
+                <tipo>MSSQL</tipo>
+            </db>
+             <consulta_para_generar_reportes><![CDATA[set dateformat ymd select a.clave_punto as id_tienda, punto_entrega
+                                    ,((select right('000000'+CAST(id_control as varchar),6) from fide_punto_entrega where clave_punto=a.clave_punto_padre)
+                                    +'_'+(select punto_entrega from fide_punto_entrega where clave_punto=a.clave_punto_padre) +'_'+right(id_control,4) +'_'+right('00'+CAST((select MAX(consecutivo_almacen) from fide_calendario_cierre_punto where clave_punto=a.clave_punto) as varchar),2))as nombre_tienda
+                                    ,clave_punto_padre
+                                    ,right(id_control,4) as num_tienda
+                                    from fide_punto_entrega a where clave_punto in (
+                                    select 
+                                    distinct(clave_punto)
+                                    from fide_beneficiario
+                                    where 
+                                    clave_tipo_padron=2 
+                                    and fecha_registro between (select top 1 DATEADD(dAY, -14,max(fecha)) from fide_calendario_cierre_punto where clave_punto=fide_calendario_cierre_punto.clave_punto) and (select top 1 max(fecha) from fide_calendario_cierre_punto where clave_punto=fide_calendario_cierre_punto.clave_punto)
+                                    )]]>
+            </consulta_para_generar_reportes>
+            <plantilla_reporte><![CDATA[c:\reportes\acuserecibofinal15052015f]]>
+                <parametros>
+                    <parametro><![CDATA[id_tienda]]></parametro>
+                    <tipo_dato><![CDATA[Integer]]></tipo_dato>
+                    <valor><![CDATA[%id_tienda]]></valor>
+                </parametros>
+            </plantilla_reporte>
+            <nombre_archivo><![CDATA[%nombre_tienda]]></nombre_archivo>  
+            <asunto_email><![CDATA[Reporte de avance de padrón ampliado del programa Ahorrate una luz]]></asunto_email>
+            <mensaje_email><![CDATA[Estimado Octavio, anexamos acuse de recibo al último corte. Saludos]]></mensaje_email>
+            <enviar_a>
+                <email>luis.pelaez00@cfe.gob.mx</email>
+                <email>daniel.martinez05@cfe.gob.mx</email>
+            </enviar_a>
+        </reporte>
+        <reporte>
+            <nombre>Reporte de avances de entrega resumen</nombre>
+            <db>
+                <servidor>10.55.210.5:1433</servidor>
+                <nombre>SLFCA</nombre>
+                <usuario>dmartinez</usuario>
+                <password>dmartinez</password>
+                <tipo>MSSQL</tipo>
+            </db>
+             <consulta_para_generar_reportes><![CDATA[SET  dateformat ymd
+                                select top 1 count(distinct(fecha)),ROW_NUMBER()OVER(ORDER BY fecha asc) AS corte,fecha,right('00'+CAST(datepart(yy,fecha) as varchar),2) +right('00'+CAST(datepart(mm,fecha) as varchar),2)+(right('00'+CAST(datepart(dd,fecha) as varchar),2)+'_'+CAST(ROW_NUMBER()OVER(ORDER BY fecha asc) as varchar)) as nombre_archivo from fide_calendario_cierre_punto
+                                group by fecha order by fecha desc
+                                ]]>
+            </consulta_para_generar_reportes>
+            <plantilla_reporte><![CDATA[c:\reportes\CortesDiconsa]]></plantilla_reporte>
+            <nombre_archivo><![CDATA[%nombre_archivo]]></nombre_archivo>  
+             <asunto_email><![CDATA[Reporte de avance de padrón ampliado del programa Ahorrate una luz]]></asunto_email>
+            <mensaje_email><![CDATA[Estimado Octavio, anexamos acuse de recibo al último corte. Saludos]]></mensaje_email>
+            <enviar_a>
+                <email>luis.pelaez00@cfe.gob.mx</email>
+                <email>daniel.martinez05@cfe.gob.mx</email>
+            </enviar_a>
+        </reporte>
+    </reportes>    
+     
+    <configuracion_email>
+        <iniciotls_habilitado>false</iniciotls_habilitado>
+        <servidor_smtp>10.55.210.34</servidor_smtp>
+        <puerto_smtp>25</puerto_smtp>
+        <usuario_smtp>noresponder@fide.org.mx</usuario_smtp>
+        <password_smtp>noresponder</password_smtp>
+    </configuracion_email>      
+</configuracion>
