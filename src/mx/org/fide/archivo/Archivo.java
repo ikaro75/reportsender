@@ -7,7 +7,7 @@ package mx.org.fide.archivo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import mx.org.fide.modelo.Fallo;
+import mx.org.fide.modelo.Fallo; 
 
 /**
  * Clase encargada de operaciones de lectura y escritura de archivos de texto en el servidor
@@ -17,6 +17,7 @@ public class Archivo {
 
     Properties propiedades = new Properties();
     InputStream is = null;
+    String hola = "";
 
     /**
      * Obtiene las propiedades del archivo de properties
